@@ -293,6 +293,40 @@ func formatsHandler(w http.ResponseWriter, r *http.Request) {
 		})
 	}
 
+	// Always append MP3 at the end using the best audio format for extraction
+	// Find the best audio-only format (highest bitrate)
+	var bestAudio *YtDlpFormat
+	for i := range ytOut.Formats {
+		f := &ytOut.Formats[i]
+		isAudio := f.ACodec != "none" && f.ACodec != ""
+		isVideoOnly := f.VCodec != "none" && f.VCodec != ""
+		ext := getExtLabel(*f)
+		if ext == "m3u8" || ext == "mpd" || strings.Contains(ext, "m3u") {
+			continue
+		}
+		if isAudio && !isVideoOnly {
+			if bestAudio == nil || f.Abr > bestAudio.Abr {
+				bestAudio = f
+			}
+		}
+	}
+	if bestAudio != nil {
+		entries = append(entries, FormatEntry{
+			FormatID: bestAudio.FormatID,
+			Ext:      "mp3",
+			Quality:  "Best Audio",
+			Filesize: getFilesize(*bestAudio),
+		})
+	} else {
+		// No audio format found – add a generic MP3 placeholder
+		entries = append(entries, FormatEntry{
+			FormatID: "bestaudio",
+			Ext:      "mp3",
+			Quality:  "Best Audio",
+			Filesize: 0,
+		})
+	}
+
 	json.NewEncoder(w).Encode(FormatsResponse{Formats: entries})
 }
 
@@ -357,7 +391,15 @@ func downloadHandler(w http.ResponseWriter, r *http.Request) {
 		"--quiet",
 	}
 
-	if formatID != "" {
+	if ext == "mp3" {
+		// Audio extraction: convert to mp3
+		args = append(args, "-x", "--audio-format", "mp3", "--audio-quality", "0")
+		if formatID != "" && formatID != "bestaudio" {
+			args = append(args, "-f", formatID)
+		} else {
+			args = append(args, "-f", "bestaudio")
+		}
+	} else if formatID != "" {
 		args = append(args, "-f", formatID)
 	} else {
 		// Default: best single mp4 file (merged audio+video)

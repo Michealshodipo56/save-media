@@ -70,13 +70,37 @@
             justify-content: center;
         }
 
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
         .input {
             width: 25em;
             font-size: 15px;
-            padding: 1em;
+            padding: 1em 2.5em 1em 1em;
             border-top-left-radius: 10em;
             border-bottom-left-radius: 10em;
             border: none;
+        }
+
+        .clear-btn {
+            position: absolute;
+            right: 0.6em;
+            background: none;
+            border: none;
+            color: #888;
+            font-size: 18px;
+            cursor: pointer;
+            line-height: 1;
+            padding: 0 4px;
+            display: none;
+            transition: color 0.2s;
+        }
+
+        .clear-btn:hover {
+            color: #333;
         }
 
         .download {
@@ -413,7 +437,10 @@
         <hr>
         <br>
         <div class="input-section">
-            <input placeholder="Paste video URL here" class="input" pl type="text">
+            <div class="input-wrapper">
+                <input placeholder="Paste video URL here" class="input" id="urlInput" type="text">
+                <button class="clear-btn" id="clearBtn" title="Clear">&times;</button>
+            </div>
             <button class="download">Download</button>
         </div>
         <br>
@@ -530,7 +557,7 @@
         }
 
         async function fetchVideoMetadata() {
-            const urlInput = document.querySelector('.input').value.trim();
+            const urlInput = document.getElementById('urlInput').value.trim();
             const foundVideo = document.getElementById('found-video');
             const videoStatus = document.getElementById('video-status');
             const videoBox = document.getElementById('video-box');
@@ -770,6 +797,23 @@
 
         // Wire up the fetch button
         document.querySelector('.download').addEventListener('click', fetchVideoMetadata);
+
+        // Enter key triggers fetch
+        document.getElementById('urlInput').addEventListener('keydown', function (e) {
+            if (e.key === 'Enter') fetchVideoMetadata();
+        });
+
+        // Show/hide clear button as user types
+        const urlInput = document.getElementById('urlInput');
+        const clearBtn = document.getElementById('clearBtn');
+        urlInput.addEventListener('input', function () {
+            clearBtn.style.display = this.value ? 'block' : 'none';
+        });
+        clearBtn.addEventListener('click', function () {
+            urlInput.value = '';
+            clearBtn.style.display = 'none';
+            urlInput.focus();
+        });
 
         // Wire up the main download button
         document.getElementById('mainDownloadBtn').addEventListener('click', function () {
