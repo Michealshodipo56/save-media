@@ -654,6 +654,8 @@
                     buildGenericDropdowns();
                 } else {
                     allFormats = data.formats;
+                    // Sort from highest quality to lowest
+                    allFormats.sort((a, b) => (parseInt(b.quality) || 0) - (parseInt(a.quality) || 0));
                     buildFormatDropdowns(allFormats);
                 }
 
@@ -714,6 +716,13 @@
             // Filter by selected extension if possible, otherwise show all
             let filtered = formats.filter(f => f.ext === filterExt);
             if (filtered.length === 0) filtered = formats;
+
+            // Sort quality from highest to lowest
+            filtered.sort((a, b) => {
+                const qA = parseInt(a.quality) || 0;
+                const qB = parseInt(b.quality) || 0;
+                return qB - qA;
+            });
 
             filtered.forEach(fmt => {
                 const a = document.createElement('a');
@@ -825,11 +834,11 @@
                 alert('Please fetch a video first.');
                 return;
             }
-            const downloadUrl = `http://localhost:8080/api/download?url=${encodeURIComponent(currentUrl)}&format_id=${encodeURIComponent(selectedFormatID)}&ext=${encodeURIComponent(selectedExt)}`;
+            const videoTitle = document.getElementById('video-name').textContent.trim() || 'video';
+            const downloadUrl = `http://localhost:8080/api/download?url=${encodeURIComponent(currentUrl)}&format_id=${encodeURIComponent(selectedFormatID)}&ext=${encodeURIComponent(selectedExt)}&title=${encodeURIComponent(videoTitle)}`;
             // Trigger browser download
             const a = document.createElement('a');
             a.href = downloadUrl;
-            a.download = 'video.' + selectedExt;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);

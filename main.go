@@ -369,6 +369,7 @@ func downloadHandler(w http.ResponseWriter, r *http.Request) {
 	videoURL := r.URL.Query().Get("url")
 	formatID := r.URL.Query().Get("format_id")
 	ext := r.URL.Query().Get("ext")
+	title := r.URL.Query().Get("title")
 
 	if videoURL == "" {
 		http.Error(w, "No URL provided", http.StatusBadRequest)
@@ -377,9 +378,20 @@ func downloadHandler(w http.ResponseWriter, r *http.Request) {
 	if ext == "" {
 		ext = "mp4"
 	}
+	if title == "" {
+		title = "video"
+	}
+
+	// Basic sanitization for filename
+	safeTitle := strings.Map(func(r rune) rune {
+		if strings.ContainsRune("\\/:*?\"<>|", r) {
+			return '_'
+		}
+		return r
+	}, title)
 
 	// Set headers for file download
-	filename := "video." + ext
+	filename := safeTitle + "." + ext
 	w.Header().Set("Content-Disposition", "attachment; filename=\""+filename+"\"")
 	w.Header().Set("Content-Type", "application/octet-stream")
 	w.Header().Set("Transfer-Encoding", "chunked")

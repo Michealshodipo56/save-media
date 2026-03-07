@@ -654,6 +654,8 @@
                     buildGenericDropdowns();
                 } else {
                     allFormats = data.formats;
+                    // Sort from highest quality to lowest
+                    allFormats.sort((a, b) => (parseInt(b.quality) || 0) - (parseInt(a.quality) || 0));
                     buildFormatDropdowns(allFormats);
                 }
 
@@ -669,15 +671,19 @@
         }
 
         function buildFormatDropdowns(formats) {
-            // Separate video formats and audio-only
-            const videoFormats = formats.filter(f => !f.quality.includes('Audio'));
-            const audioFormats = formats.filter(f => f.quality.includes('Audio'));
+            // Separate video and MP3 formats
+            const videoFormats = formats.filter(f => f.ext !== 'mp3');
+            const mp3Formats   = formats.filter(f => f.ext === 'mp3');
 
-            // Build FORMAT dropdown (MP4, WEBM, MP3, etc.)
-            const exts = [...new Set(formats.map(f => f.ext))];
+            // Build ordered ext list: mp4 first, other video exts, then mp3
+            const videoExts = [...new Set(videoFormats.map(f => f.ext))];
+            // Prioritise mp4
+            videoExts.sort((a, b) => (a === 'mp4' ? -1 : b === 'mp4' ? 1 : a.localeCompare(b)));
+            const orderedExts = [...videoExts, 'mp3'];
+
             const formatDropdown = document.getElementById('formatDropdown');
             formatDropdown.innerHTML = '';
-            exts.forEach(ext => {
+            orderedExts.forEach(ext => {
                 const a = document.createElement('a');
                 a.href = '#';
                 a.textContent = ext.toUpperCase();
@@ -689,17 +695,17 @@
                 formatDropdown.appendChild(a);
             });
 
-            // Build QUALITY dropdown – show video qualities, then audio option
-            buildQualityDropdown(formats, exts[0] || 'mp4');
+            // Build QUALITY dropdown for the first (default) ext
+            buildQualityDropdown(formats, orderedExts[0] || 'mp4');
 
-            // Default selection: first format
-            if (formats.length > 0) {
-                const first = formats[0];
-                selectedFormatID = first.format_id;
-                selectedExt = first.ext;
-                document.getElementById('formatBtn').textContent = 'Format: ' + first.ext.toUpperCase();
-                document.getElementById('qualityBtn').textContent = first.quality;
-                updateFileSize(first.filesize);
+            // Default selection: first video format (or mp3 if nothing else)
+            const defaultFmt = videoFormats[0] || mp3Formats[0];
+            if (defaultFmt) {
+                selectedFormatID = defaultFmt.format_id;
+                selectedExt = defaultFmt.ext;
+                document.getElementById('formatBtn').textContent = 'Format: ' + defaultFmt.ext.toUpperCase();
+                document.getElementById('qualityBtn').textContent = defaultFmt.quality;
+                updateFileSize(defaultFmt.filesize);
             }
         }
 
@@ -710,6 +716,13 @@
             // Filter by selected extension if possible, otherwise show all
             let filtered = formats.filter(f => f.ext === filterExt);
             if (filtered.length === 0) filtered = formats;
+
+            // Sort quality from highest to lowest
+            filtered.sort((a, b) => {
+                const qA = parseInt(a.quality) || 0;
+                const qB = parseInt(b.quality) || 0;
+                return qB - qA;
+            });
 
             filtered.forEach(fmt => {
                 const a = document.createElement('a');
@@ -821,11 +834,11 @@
                 alert('Please fetch a video first.');
                 return;
             }
-            const downloadUrl = `http://localhost:8080/api/download?url=${encodeURIComponent(currentUrl)}&format_id=${encodeURIComponent(selectedFormatID)}&ext=${encodeURIComponent(selectedExt)}`;
+            const videoTitle = document.getElementById('video-name').textContent.trim() || 'video';
+            const downloadUrl = `http://localhost:8080/api/download?url=${encodeURIComponent(currentUrl)}&format_id=${encodeURIComponent(selectedFormatID)}&ext=${encodeURIComponent(selectedExt)}&title=${encodeURIComponent(videoTitle)}`;
             // Trigger browser download
             const a = document.createElement('a');
             a.href = downloadUrl;
-            a.download = 'video.' + selectedExt;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
