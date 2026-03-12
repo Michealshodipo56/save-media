@@ -538,7 +538,7 @@
 
     </div>
 
-   <script>
+    <script>
         // Stores all fetched formats and current selection
         let allFormats = [];
         let currentUrl = '';
@@ -588,7 +588,7 @@
             formatsLoading.style.display = 'none';
 
             try {
-                const apiUrl = `https://save-media-backend.up.railway.app/api/metadata?url=${encodeURIComponent(urlInput)}`;
+                const apiUrl = `https://save-media-backend-production.up.railway.app/api/metadata?url=${encodeURIComponent(urlInput)}`;
                 const response = await fetch(apiUrl);
                 const data = await response.json();
 
@@ -605,8 +605,7 @@
                 videoDuration.textContent = '⏱ Duration: ' + (data.duration || 'N/A');
 
                 if (data.thumbnail) {
-                    // Proxy through backend to avoid CORS issues
-                    const proxyThumb = `https://save-media-backend.up.railway.app/api/thumbnail?url=${encodeURIComponent(data.thumbnail)}`;
+                    const proxyThumb = `https://save-media-backend-production.up.railway.app/api/thumbnail?url=${encodeURIComponent(data.thumbnail)}`;
                     const img = document.createElement('img');
                     img.alt = 'Video Thumbnail';
                     img.style.width = '100%';
@@ -643,7 +642,7 @@
             const downloadBtnSection = document.getElementById('download-btn-section');
 
             try {
-                const res = await fetch(`https://save-media-backend.up.railway.app/api/formats?url=${encodeURIComponent(videoUrl)}`);
+                const res = await fetch(`https://save-media-backend-production.up.railway.app/api/formats?url=${encodeURIComponent(videoUrl)}`);
                 const data = await res.json();
                 formatsLoading.style.display = 'none';
 
@@ -817,7 +816,7 @@
                 return;
             }
             const videoTitle = document.getElementById('video-name').textContent.trim() || 'video';
-            const downloadUrl = `https://save-media-backend.up.railway.app/api/download?url=${encodeURIComponent(currentUrl)}&format_id=${encodeURIComponent(selectedFormatID)}&ext=${encodeURIComponent(selectedExt)}&title=${encodeURIComponent(videoTitle)}`;
+            const downloadUrl = `https://save-media-backend-production.up.railway.app/api/download?url=${encodeURIComponent(currentUrl)}&format_id=${encodeURIComponent(selectedFormatID)}&ext=${encodeURIComponent(selectedExt)}&title=${encodeURIComponent(videoTitle)}`;
             const a = document.createElement('a');
             a.href = downloadUrl;
             document.body.appendChild(a);
@@ -854,6 +853,7 @@
             toggleDropdown('qualityDropdown');
         };
 </script>
+
 </body>
 
 </html>
