@@ -538,7 +538,7 @@
 
     </div>
 
-    <script>
+   <script>
         // Stores all fetched formats and current selection
         let allFormats = [];
         let currentUrl = '';
@@ -588,7 +588,7 @@
             formatsLoading.style.display = 'none';
 
             try {
-                const apiUrl = `http://localhost:8080/api/metadata?url=${encodeURIComponent(urlInput)}`;
+                const apiUrl = `https://save-media-backend.up.railway.app/api/metadata?url=${encodeURIComponent(urlInput)}`;
                 const response = await fetch(apiUrl);
                 const data = await response.json();
 
@@ -606,7 +606,7 @@
 
                 if (data.thumbnail) {
                     // Proxy through backend to avoid CORS issues
-                    const proxyThumb = `http://localhost:8080/api/thumbnail?url=${encodeURIComponent(data.thumbnail)}`;
+                    const proxyThumb = `https://save-media-backend.up.railway.app/api/thumbnail?url=${encodeURIComponent(data.thumbnail)}`;
                     const img = document.createElement('img');
                     img.alt = 'Video Thumbnail';
                     img.style.width = '100%';
@@ -614,7 +614,6 @@
                     img.style.objectFit = 'cover';
                     img.style.borderRadius = '1em';
                     img.onerror = function() {
-                        // Fallback: try direct URL
                         if (img.src !== data.thumbnail) {
                             img.src = data.thumbnail;
                         } else {
@@ -628,7 +627,6 @@
                     videoBox.innerHTML = noThumbHTML();
                 }
 
-                // Now fetch available formats
                 formatsLoading.style.display = 'block';
                 await fetchFormats(urlInput);
 
@@ -645,16 +643,14 @@
             const downloadBtnSection = document.getElementById('download-btn-section');
 
             try {
-                const res = await fetch(`http://localhost:8080/api/formats?url=${encodeURIComponent(videoUrl)}`);
+                const res = await fetch(`https://save-media-backend.up.railway.app/api/formats?url=${encodeURIComponent(videoUrl)}`);
                 const data = await res.json();
                 formatsLoading.style.display = 'none';
 
                 if (data.error || !data.formats || data.formats.length === 0) {
-                    // Fall back to generic options if no formats returned
                     buildGenericDropdowns();
                 } else {
                     allFormats = data.formats;
-                    // Sort from highest quality to lowest
                     allFormats.sort((a, b) => (parseInt(b.quality) || 0) - (parseInt(a.quality) || 0));
                     buildFormatDropdowns(allFormats);
                 }
@@ -671,13 +667,10 @@
         }
 
         function buildFormatDropdowns(formats) {
-            // Separate video and MP3 formats
             const videoFormats = formats.filter(f => f.ext !== 'mp3');
             const mp3Formats   = formats.filter(f => f.ext === 'mp3');
 
-            // Build ordered ext list: mp4 first, other video exts, then mp3
             const videoExts = [...new Set(videoFormats.map(f => f.ext))];
-            // Prioritise mp4
             videoExts.sort((a, b) => (a === 'mp4' ? -1 : b === 'mp4' ? 1 : a.localeCompare(b)));
             const orderedExts = [...videoExts, 'mp3'];
 
@@ -695,10 +688,8 @@
                 formatDropdown.appendChild(a);
             });
 
-            // Build QUALITY dropdown for the first (default) ext
             buildQualityDropdown(formats, orderedExts[0] || 'mp4');
 
-            // Default selection: first video format (or mp3 if nothing else)
             const defaultFmt = videoFormats[0] || mp3Formats[0];
             if (defaultFmt) {
                 selectedFormatID = defaultFmt.format_id;
@@ -713,11 +704,9 @@
             const qualityDropdown = document.getElementById('qualityDropdown');
             qualityDropdown.innerHTML = '';
 
-            // Filter by selected extension if possible, otherwise show all
             let filtered = formats.filter(f => f.ext === filterExt);
             if (filtered.length === 0) filtered = formats;
 
-            // Sort quality from highest to lowest
             filtered.sort((a, b) => {
                 const qA = parseInt(a.quality) || 0;
                 const qB = parseInt(b.quality) || 0;
@@ -747,9 +736,7 @@
         function selectFormat(ext) {
             selectedExt = ext;
             document.getElementById('formatBtn').textContent = 'Format: ' + ext.toUpperCase();
-            // Rebuild quality dropdown filtered to this ext
             buildQualityDropdown(allFormats, ext);
-            // Auto-select first matching quality
             const match = allFormats.find(f => f.ext === ext);
             if (match) {
                 selectedFormatID = match.format_id;
@@ -772,7 +759,6 @@
         }
 
         function buildGenericDropdowns() {
-            // Fallback when API can't return formats
             const formatDropdown = document.getElementById('formatDropdown');
             formatDropdown.innerHTML = '';
             ['MP4', 'MP3'].forEach(ext => {
@@ -808,15 +794,12 @@
             document.getElementById('file-size-display').textContent = 'Size: Unknown';
         }
 
-        // Wire up the fetch button
         document.querySelector('.download').addEventListener('click', fetchVideoMetadata);
 
-        // Enter key triggers fetch
         document.getElementById('urlInput').addEventListener('keydown', function (e) {
             if (e.key === 'Enter') fetchVideoMetadata();
         });
 
-        // Show/hide clear button as user types
         const urlInput = document.getElementById('urlInput');
         const clearBtn = document.getElementById('clearBtn');
         urlInput.addEventListener('input', function () {
@@ -828,15 +811,13 @@
             urlInput.focus();
         });
 
-        // Wire up the main download button
         document.getElementById('mainDownloadBtn').addEventListener('click', function () {
             if (!currentUrl) {
                 alert('Please fetch a video first.');
                 return;
             }
             const videoTitle = document.getElementById('video-name').textContent.trim() || 'video';
-            const downloadUrl = `http://localhost:8080/api/download?url=${encodeURIComponent(currentUrl)}&format_id=${encodeURIComponent(selectedFormatID)}&ext=${encodeURIComponent(selectedExt)}&title=${encodeURIComponent(videoTitle)}`;
-            // Trigger browser download
+            const downloadUrl = `https://save-media-backend.up.railway.app/api/download?url=${encodeURIComponent(currentUrl)}&format_id=${encodeURIComponent(selectedFormatID)}&ext=${encodeURIComponent(selectedExt)}&title=${encodeURIComponent(videoTitle)}`;
             const a = document.createElement('a');
             a.href = downloadUrl;
             document.body.appendChild(a);
@@ -872,7 +853,7 @@
             e.stopPropagation();
             toggleDropdown('qualityDropdown');
         };
-    </script>
+</script>
 </body>
 
 </html>
