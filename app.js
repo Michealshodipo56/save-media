@@ -22,6 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
         opacity: 0,
         duration: 1,
         delay: 0.2,
+        stagger: 0.2,
         ease: 'power4.out'
     });
 });
@@ -59,7 +60,10 @@ async function handleFetchMetadata() {
     resultStatus.style.display = 'flex';
     videoDetails.style.display = 'none';
     
-    gsap.to(resultsSection, { opacity: 1, y: 0, duration: 0.5 });
+    gsap.fromTo(resultsSection, 
+        { opacity: 0, y: 30 },
+        { opacity: 1, y: 0, duration: 0.6, ease: 'back.out(1.7)' }
+    );
 
     try {
         const response = await fetch(`${BACKEND_URL}/api/metadata?url=${encodeURIComponent(url)}`);
