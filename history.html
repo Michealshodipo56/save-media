@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Download History | Save Media</title>
+    <meta name="description" content="View and re-download your previously saved media from Save Media.">
+    <link rel="icon" href="images/cloud.svg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+    <div class="mesh-gradient"></div>
+    <div class="glow-blob blob-1"></div>
+    <div class="glow-blob blob-2"></div>
+
+    <main class="container">
+        <!-- Header -->
+        <header class="header" data-gsap="fade-down">
+            <div class="logo">
+                <i data-lucide="cloud-download" class="logo-icon"></i>
+                <h1>Save<span>Media</span></h1>
+            </div>
+            <nav class="nav">
+                <a href="index.html" class="nav-link">Downloader</a>
+                <a href="history.html" class="nav-link active">History</a>
+                <a href="#" class="nav-link">Help</a>
+            </nav>
+        </header>
+
+        <!-- History Section -->
+        <section class="history-section" data-gsap="fade-up">
+            <div class="history-header">
+                <div class="history-heading">
+                    <i data-lucide="clock-history" class="history-heading-icon"></i>
+                    <div>
+                        <h2 class="section-title" style="margin-bottom: 0.25rem;">Download <span class="gradient-text">History</span></h2>
+                        <p class="history-subtitle">Your previously downloaded media</p>
+                    </div>
+                </div>
+                <button id="clearHistoryBtn" class="clear-history-btn">
+                    <i data-lucide="trash"></i>
+                    <span>Clear All</span>
+                </button>
+            </div>
+
+            <!-- Empty State -->
+            <div id="historyEmpty" class="history-empty">
+                <div class="history-empty-icon">
+                    <i data-lucide="inbox"></i>
+                </div>
+                <h3>No downloads yet</h3>
+                <p>Your download history will appear here once you save some media.</p>
+                <a href="index.html" class="go-download-btn">
+                    <i data-lucide="arrow-left"></i> Start Downloading
+                </a>
+            </div>
+
+            <!-- History List -->
+            <div id="historyList" class="history-list"></div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>&copy; 2026 Save Media. Developed by <a href="#" class="brand-link">Sho-Design</a></p>
+            <div class="social-links">
+                <a href="https://github.com/Michealshodipo56"><i data-lucide="github"></i></a>
+                <a href="https://x.com/Entity50"><i data-lucide="twitter"></i></a>
+                <a href="#"><i data-lucide="instagram"></i></a>
+            </div>
+        </footer>
+    </main>
+
+    <!-- Clear History Confirmation Modal -->
+    <div id="clearModal" class="modal-overlay">
+        <div class="modal-box glass">
+            <div class="modal-icon">
+                <i data-lucide="alert-triangle"></i>
+            </div>
+            <h3 class="modal-title">Clear All History?</h3>
+            <p class="modal-body">This will permanently delete all your download history. This action cannot be undone.</p>
+            <div class="modal-actions">
+                <button id="modalCancel" class="modal-cancel-btn">Cancel</button>
+                <button id="modalConfirm" class="modal-confirm-btn">Yes, Clear All</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="toast"></div>
+
+    <script src="history.js"></script>
+</body>
+</html>

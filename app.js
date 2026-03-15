@@ -179,12 +179,29 @@ window.onclick = () => {
 // Download Trigger
 document.getElementById('mainDownloadBtn').onclick = () => {
     const title = document.getElementById('videoTitle').textContent;
+    const platform = document.getElementById('platformBadge').textContent;
+    const quality = document.querySelector('#qualitySelect .selected-value').textContent;
+    const format = `${selectedExt.toUpperCase()} ${quality}`;
     const downloadUrl = `${BACKEND_URL}/api/download?url=${encodeURIComponent(urlInput.value)}&format_id=${encodeURIComponent(selectedFormatID)}&ext=${encodeURIComponent(selectedExt)}&title=${encodeURIComponent(title)}`;
-    
+
     const a = document.createElement('a');
     a.href = downloadUrl;
     a.click();
     showToast('Download started!');
+
+    // Save to history
+    const thumb = document.getElementById('thumbnail').src;
+    const historyItem = {
+        id:            'history_' + Date.now(),
+        title:         title,
+        thumbnail:     thumb,
+        platform:      platform,
+        url:           urlInput.value.trim(),
+        format:        format,
+        download_url:  downloadUrl,
+        downloaded_at: new Date().toISOString()
+    };
+    addToHistory(historyItem);
 };
 
 function formatFileSize(bytes) {
