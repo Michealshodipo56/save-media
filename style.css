@@ -242,7 +242,7 @@ body {
 
 /* Results Section */
 .results-section {
-  padding-top: 4rem;
+  padding-top: 1rem;
 }
 
 .result-card {
@@ -468,7 +468,7 @@ body {
 
 /* Content Sections */
 .info-section {
-  padding: 6rem 0;
+  padding: 3rem 0;
   text-align: center;
 }
 
@@ -549,7 +549,7 @@ body {
 /* Footer */
 .footer {
   margin-top: auto;
-  padding: 4rem 0 2rem;
+  padding: 2rem 0 2rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
